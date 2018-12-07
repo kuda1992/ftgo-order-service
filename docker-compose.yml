@@ -1,0 +1,10 @@
+version: "3.3"
+
+services:
+  ftgo-order-database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ftgo-order-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
