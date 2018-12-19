@@ -3,9 +3,13 @@ package com.ftgo.orderservice.controllers;
 import com.ftgo.orderservice.aggregrates.Order;
 import com.ftgo.orderservice.services.OrderService;
 import io.reactivex.Flowable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -14,24 +18,26 @@ import java.util.List;
 @RequestMapping(value = "api/orders")
 public class OrderController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
     @Autowired
     private OrderService orderService;
 
 
     @GetMapping({"/", ""})
-    public ResponseEntity<Flowable<List<Order>>> getOrders() {
+    public ResponseEntity<Flux<Order>> getOrders() {
+        LOGGER.info("get all orders");
         return ResponseEntity.ok(this.orderService.getOrders());
     }
 
-    @GetMapping({"/{id}", "/{id}/"})
-    public ResponseEntity<Flowable<Order>> getOrder(@PathVariable("id") int id) {
-        return ResponseEntity.ok(this.orderService.getOrder(id));
+    @GetMapping({"/{orderId}", "/{orderId}/"})
+    public ResponseEntity<Mono<Order>> getOrder(@PathVariable("orderId") String orderId) {
+        LOGGER.info("get order by orderId " + orderId);
+        return ResponseEntity.ok(this.orderService.getOrder(orderId));
     }
 
-
     @PostMapping("/create")
-    public Flowable<Order> createOrder(@Valid @RequestBody Order order) {
+    public  Mono<Order> createOrder(@Valid @RequestBody Order order) {
         return this.orderService.createOrder(order);
     }
 

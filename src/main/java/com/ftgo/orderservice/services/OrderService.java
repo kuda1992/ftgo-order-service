@@ -1,20 +1,37 @@
 package com.ftgo.orderservice.services;
 
 import com.ftgo.orderservice.aggregrates.Order;
+import com.ftgo.orderservice.repositories.ReactiveOrderRepository;
+import com.ftgo.orderservice.sagas.CreateOrderSaga;
 import io.reactivex.Flowable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class OrderService {
 
-    public Flowable<Order> createOrder(Order order) {
-        return Flowable.just(order);
+    @Autowired
+    private ReactiveOrderRepository reactiveOrderRepository;
+
+    @Autowired
+    private CreateOrderSaga createOrderSaga;
+
+    public Mono<Order> createOrder(Order order) {
+        return reactiveOrderRepository.save(order);
     }
 
     public Flowable<Order> updateOrder(Order order) {
+        return Flowable.just(order);
+    }
+
+    public Flowable<Order> approveOrder(Order order) {
         return Flowable.just(order);
     }
 
@@ -26,15 +43,11 @@ public class OrderService {
         return Flowable.just(order);
     }
 
-    public Flowable<Order> getOrder(int orderId) {
-        return Flowable.just(new Order());
+    public Mono<Order> getOrder(String orderId) {
+        return this.reactiveOrderRepository.findById(orderId);
     }
 
-    public Flowable<List<Order>> getOrders() {
-        List<Order> orders = new ArrayList<>();
-        orders.add(new Order());
-        orders.add(new Order());
-        orders.add(new Order());
-        return Flowable.just(orders);
+    public Flux<Order> getOrders() {
+        return this.reactiveOrderRepository.findAll();
     }
 }
